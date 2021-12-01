@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 
-[RequireComponent(typeof(ARRaycastManager))]
 public class PlacementController : MonoBehaviour
 {
 
     [SerializeField]
     private GameObject placedPrefab;
+    private Color activeColor = Color.red;
+    private Color inactiveColor = Color.gray;
+    private Camera arCamera;
+    private Touch touch = default;
 
     public GameObject PlacedPrefab
     {
@@ -29,23 +32,55 @@ public class PlacementController : MonoBehaviour
         arRaycastManager = GetComponent<ARRaycastManager>();
     }
 
-    bool TryGetTouchPosition(out Vector2 touchPosition)
+    bool TryGetTouchPosition(out Touch touch)
     {
         if (Input.touchCount > 0)
         {
-            touchPosition = Input.GetTouch(0).position;
+            touch = Input.GetTouch(0);
             return true;
         }
-        touchPosition = default;
+        touch = default;
         return false;
+    }
+
+    void SelectPlacedObject(Touch touch)
+    {
+        if (touch.phase == TouchPhase.Began)
+        {
+            Ray ray = arCamera.ScreenPointToRay(touch.position);
+            RaycastHit hitObject;
+            if (Physics.Raycast(ray, out hitObject)) {
+                PlacementObject placementObject = hitObject.transform.GetComponent<PlacementObject>();
+                if (placementObject != null)
+                {
+                    ChangeSelectedObject(placementObject);
+                }
+            }
+        }
+    }
+
+    void ChangeSelectedObject(PlacementObject selected)
+    {
+        MeshRenderer meshRenderer = selected.GetComponent<MeshRenderer>();
+        if (selected.IsSelected)
+        {
+            selected.IsSelected = false;
+            meshRenderer.material.color = inactiveColor;
+        } else
+        {
+            selected.IsSelected = true;
+            meshRenderer.material.color = activeColor;
+        }
     }
 
     void Update()
     {
-        if (!TryGetTouchPosition(out Vector2 touchPosition))
+        if (!TryGetTouchPosition(out Touch touch))
             return;
 
-        if (arRaycastManager.Raycast(touchPosition, hits, UnityEngine.XR.ARSubsystems.TrackableType.PlaneWithinPolygon))
+        SelectPlacedObject(touch);
+
+        if (arRaycastManager.Raycast(touch.position, hits, UnityEngine.XR.ARSubsystems.TrackableType.PlaneWithinPolygon))
         {
             var hitPose = hits[0].pose;
             Instantiate(placedPrefab, hitPose.position, hitPose.rotation);
