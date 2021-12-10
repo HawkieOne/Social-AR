@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 6305048302408997985}
   m_Layer: 0
   m_Name: ARRed
-  m_TagString: Untagged
+  m_TagString: Balls
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
