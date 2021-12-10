@@ -10,9 +10,6 @@ public class PlacementWithMultipleDraggingDroppingController : MonoBehaviour
     private GameObject placedPrefab;
 
     [SerializeField]
-    private Button clearButton;
-
-    [SerializeField]
     private GameObject welcomePanel;
 
     [SerializeField]
@@ -36,12 +33,6 @@ public class PlacementWithMultipleDraggingDroppingController : MonoBehaviour
     [SerializeField]
     private Button redButton, greenButton, blueButton;
 
-    [SerializeField]
-    private Text redStats, greenStats, blueStats;
-
-    [SerializeField]
-    private Text selectionText;
-
     private GameObject PlacedPrefab
     {
         get
@@ -60,49 +51,20 @@ public class PlacementWithMultipleDraggingDroppingController : MonoBehaviour
         arRaycastManager = GetComponent<ARRaycastManager>();
         dismissButton.onClick.AddListener(Dismiss);
 
-        ChangePrefabTo("ARRed");
-
         if (redButton != null && greenButton != null && blueButton != null)
         {
-            redButton.onClick.AddListener(() => ChangePrefabTo("ARRed"));
-            greenButton.onClick.AddListener(() => ChangePrefabTo("ARGreen"));
-            blueButton.onClick.AddListener(() => ChangePrefabTo("ARBlue"));
-            clearButton.onClick.AddListener(() => ClearGameObjects());
+            redButton.onClick.AddListener(() => ChangePrefabSelection("ARRed"));
+            greenButton.onClick.AddListener(() => ChangePrefabSelection("ARGreen"));
+            blueButton.onClick.AddListener(() => ChangePrefabSelection("ARBlue"));
         }
     }
 
-    void ClearGameObjects()
+    private void ChangePrefabSelection(string name)
     {
-        GameObject[] prefabs = GameObject.FindGameObjectsWithTag("Balls");
-        foreach (GameObject prefab in prefabs)
-        {
-            Destroy(prefab);
-        }
-    }
-
-    private void ChangePrefabTo(string name)
-    {
-
         GameObject loadedGameObject = Resources.Load<GameObject>($"Prefabs/{name}");
-        //placedPrefab = Resources.Load<GameObject>($"Prefabs/{prefabName}");
-
         if (loadedGameObject != null)
         {
-            switch (name)
-            {
-                case "ARBlue":
-                    selectionText.text = $"Selected: <color='blue'>{name}</color>";
-                    PlacedPrefab = loadedGameObject;
-                    break;
-                case "ARRed":
-                    selectionText.text = $"Selected: <color='red'>{name}</color>";
-                    PlacedPrefab = loadedGameObject;
-                    break;
-                case "ARGreen":
-                    selectionText.text = $"Selected: <color='green'>{name}</color>";
-                    PlacedPrefab = loadedGameObject;
-                    break;
-            }
+            PlacedPrefab = loadedGameObject;
             Debug.Log($"Game object with name {name} was loaded");
         }
         else
@@ -152,11 +114,10 @@ public class PlacementWithMultipleDraggingDroppingController : MonoBehaviour
         if (arRaycastManager.Raycast(touchPosition, hits, UnityEngine.XR.ARSubsystems.TrackableType.PlaneWithinPolygon))
         {
             Pose hitPose = hits[0].pose;
-            greenStats.text = hits[0].pose.ToString();
-            redStats.text = "PLACE";
+
             if (lastSelectedObject == null)
             {
-                lastSelectedObject = Instantiate(placedPrefab, touchPosition, hitPose.rotation).GetComponent<PlacementObject>();
+                lastSelectedObject = Instantiate(placedPrefab, hitPose.position, hitPose.rotation).GetComponent<PlacementObject>();
             }
             else
             {
