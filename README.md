@@ -18,8 +18,8 @@ The tests are developed in Unity with AR Foundation. The tests consis of two sce
       <td>Scenario 2</td>
     </tr>
     <tr>  
-      <td><img width="100px" alt="Scenario 1" src="Avatar.jpg" width="500"/></td>
-      <td><img width="100px" alt="Scenario 2" src="Scoreboard.jpg" width="500"/></td>
+      <td><img alt="Scenario 1" src="Avatar.jpg" width="300px"/></td>
+      <td><img alt="Scenario 2" src="Scoreboard.jpg" width="300px"/></td>
     </tr>
   </tbody>
 </table>
